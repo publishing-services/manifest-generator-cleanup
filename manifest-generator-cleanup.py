@@ -49,7 +49,21 @@ def lambda_handler(event, context):
 
             if (
                 sqs_bcid == comp_sqs_bcid
-                and time_of_new_message - sqs_receive_timestamp > 30000
+                and comp_sqs_receive_timestamp - sqs_receive_timestamp > 0
+            ):
+                entries = [
+                    {
+                        "Id": comp_message["MessageId"],
+                        "ReceiptHandle": comp_message["ReceiptHandle"],
+                    }
+                ]
+                sqs_client.delete_message_batch(
+                    QueueUrl="https://sqs.us-west-2.amazonaws.com/843093192195/manifest-generator",
+                    Entries=entries,
+                )
+            if (
+                sqs_bcid == comp_sqs_bcid
+                and comp_sqs_receive_timestamp - sqs_receive_timestamp < 0
             ):
                 entries = [
                     {
